@@ -26,7 +26,16 @@ Non-goals for the first version:
 - Fully deterministic compiler from contract to complete game.
 - Supporting every engine equally from day one.
 
-Recommended first target engine: Godot 4.x, because it is open-source, scriptable, lightweight, and suitable for 2D casual games.
+Recommended first target engine: Phaser 3 + TypeScript running on the web, because it provides the fastest validation loop for 2D casual games: instant browser preview, simple deployment, Playwright-based smoke tests, easy screenshot capture, and no heavyweight editor/runtime dependency.
+
+Why Phaser TypeScript first:
+
+- Web preview is immediate and shareable.
+- Coding agents can run `npm test`, `npm run build`, and browser automation without opening a game editor.
+- Playwright can validate launch, input, screenshots, console errors, and basic gameplay flows.
+- TypeScript gives strong static feedback for generated code.
+- Phaser maps well to 2D casual primitives: scenes, sprites, tweens, input, audio, tile/grid boards, and UI overlays.
+- Generated games can be deployed quickly to static hosting.
 
 ---
 
@@ -134,9 +143,9 @@ For example:
 ```text
 Universal Game Contract
         ↓
-Coder Agent + Godot Skill
+Coder Agent + Phaser TypeScript Skill
         ↓
-Godot scenes/scripts/resources/tests
+Phaser scenes/systems/components/tests
 ```
 
 ---
@@ -157,8 +166,8 @@ Godot scenes/scripts/resources/tests
    - Docs generated from schema where possible.
 
 4. **Engine-neutral core, engine-specific adapters**
-   - Contract should not mention Godot nodes directly.
-   - Engine adapters translate concepts into Godot/Unity/Phaser/etc. patterns.
+   - Contract should not mention Phaser classes directly.
+   - Engine adapters translate concepts into Phaser/Godot/Unity/etc. patterns.
 
 5. **Production polish as first-class contract data**
    - Visual style, animation intent, audio feedback, VFX, UI states, game feel, and accessibility are part of the contract.
@@ -232,7 +241,7 @@ game:
   genre_tags: [casual, puzzle, match3]
   target_platforms: [mobile]
   orientation: portrait
-  target_engine: godot_4
+  target_engine: phaser_ts_web
   design_intent: >
     A polished ocean-themed match-3 minigame with juicy feedback,
     clear level goals, and simple mobile controls.
@@ -694,7 +703,7 @@ gamecraft init
 gamecraft design --gdd docs/GDD.md --recipe match3_basic
 gamecraft validate-contract
 gamecraft generate-assets
-gamecraft code --engine godot
+gamecraft code --engine phaser-ts
 gamecraft test
 gamecraft qa
 gamecraft package
@@ -713,7 +722,7 @@ gamecraft/
   skills/
     designer/
     artist/
-    coder-godot/
+    coder-phaser-ts/
     qa/
   examples/
     match3_ocean/
@@ -730,7 +739,7 @@ Example:
 
 ```yaml
 engine_capabilities:
-  target: godot_4
+  target: phaser_ts_web
   supported:
     - grid_board
     - drag_or_tap_swap
@@ -739,6 +748,10 @@ engine_capabilities:
     - tween_animation
     - audio_sfx
     - save_local_progress
+    - browser_preview
+    - screenshot_testing
+    - console_error_capture
+    - static_web_export
   unsupported:
     - online_multiplayer
     - skeletal_2d_animation
@@ -961,19 +974,22 @@ Success criteria:
 - Designer Agent can produce a valid contract from a short GDD.
 - Validator catches missing IDs, missing asset refs, and invalid sections.
 
-### Phase 2: Godot Vertical Slice
+### Phase 2: Phaser TypeScript Web Vertical Slice
 
 Deliverables:
 
-- Godot Coder Agent skill
+- Phaser TypeScript Coder Agent skill
+- Vite-powered web project template
 - Match-3 example implementation
 - Asset manifest format
-- Smoke test command
+- Browser smoke test command
+- Playwright screenshot and interaction tests
 
 Success criteria:
 
-- Contract-driven match-3 project launches in Godot.
+- Contract-driven match-3 project launches in a browser with `npm run dev` or `npm run preview`.
 - Board, swap, match resolution, goal, UI, and feedback work.
+- Playwright can load the game, perform a basic interaction, capture a screenshot, and verify no console/runtime errors.
 
 ### Phase 3: Artist Pipeline
 
@@ -1061,7 +1077,7 @@ Mitigation:
 ## 16. Open Decisions
 
 1. Contract format: YAML only, or YAML authoring with JSON compiled form?
-2. First engine: Godot only, or Godot + Phaser?
+2. First engine: Phaser TypeScript only, or Phaser TypeScript + Godot later?
 3. Asset generation backend: image model API, local model, sourced asset library, or hybrid?
 4. How strict should rule semantics be in v1?
 5. Should Designer Agent output a single contract file first, then split later?
@@ -1069,7 +1085,7 @@ Mitigation:
 Recommended decisions for v1:
 
 - YAML authoring, JSON Schema validation.
-- Godot 4 only.
+- Phaser 3 + TypeScript + Vite for v1; add Godot later only after the contract and validator stabilize.
 - Hybrid asset pipeline: generated assets + optional curated library.
 - Rule semantics strict enough for validation, flexible enough for LLM implementation.
 - Single-file contract examples first, multi-file layout for real projects.
